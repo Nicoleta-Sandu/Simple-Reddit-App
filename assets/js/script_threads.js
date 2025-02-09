@@ -1,3 +1,11 @@
+function getTimestamp(item) {
+  return new Date(item.created_utc * 1000).getTime();
+}
+
+function sortByDateTime(a, b) {
+  return getTimestamp(b) - getTimestamp(a);
+}
+
 const REDDIT_BASE_URL = "https://www.reddit.com";
 let afterToken = "";
 const urlParams = new URLSearchParams(window.location.search);
@@ -54,7 +62,11 @@ async function loadThreads() {
   const data = await fetchThreads(afterToken);
   if (data && data.children) {
     const threadList = document.getElementById("threadList");
-    data.children.forEach((item) => {
+    const sortedThreads = [...data.children].sort((a, b) =>
+      sortByDateTime(a.data, b.data)
+    );
+
+    sortedThreads.forEach((item) => {
       threadList.appendChild(renderThread(item.data));
     });
     afterToken = data.after;

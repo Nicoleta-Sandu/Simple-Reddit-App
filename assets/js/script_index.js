@@ -1,3 +1,11 @@
+function getTimestamp(item) {
+  return new Date(item.created_utc * 1000).getTime();
+}
+
+function sortByDateTime(a, b) {
+  return getTimestamp(b) - getTimestamp(a);
+}
+
 const REDDIT_BASE_URL = "https://www.reddit.com";
 let afterToken = "";
 
@@ -43,7 +51,11 @@ async function loadSubreddits() {
   const data = await fetchSubreddits(afterToken);
   if (data && data.children) {
     const subredditList = document.getElementById("subredditList");
-    data.children.forEach((item) => {
+    const sortedSubreddits = [...data.children].sort((a, b) =>
+      sortByDateTime(a.data, b.data)
+    );
+
+    sortedSubreddits.forEach((item) => {
       subredditList.appendChild(renderSubreddit(item.data));
     });
     afterToken = data.after;
